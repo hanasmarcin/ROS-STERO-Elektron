@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_service_files(
   FILES
   PathFollower.srv
+  Proj1Moves.srv
 )
 
 
@@ -27,8 +28,6 @@ catkin_package(
    CATKIN_DEPENDS  message_runtime
    DEPENDS elektron 
 )
-
-rosbuild_gensrv()
 
 
 install (DIRECTORY worlds/ DESTINATION share/${CMAKE_PROJECT_NAME}/worlds 
