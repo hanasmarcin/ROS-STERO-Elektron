@@ -10,8 +10,8 @@ import math
 import numpy as np
 import csv
 
-DIST = 2
-ALPHA = 2*math.pi
+DIST = 1
+ALPHA = math.pi
 OMEGA = 0.5
 VELOCITY = 0.5
 twist_translation = Twist()
@@ -24,10 +24,24 @@ def move_forwards_backwards(pub):
     translation_time = DIST/VELOCITY
     pub.publish(twist_translation)
     rospy.sleep(translation_time)
-    
+
+    # rate = rospy.Rate(50)
+    # time = 0
+    # while time < translation_time:
+    #     pub.publish(twist_translation)
+    #     rate.sleep()
+    #     time += rate.sleep_dur.nsecs/1E9
+ 
+        
     twist_translation.linear.x = VELOCITY
     pub.publish(twist_translation)
     rospy.sleep(translation_time)
+
+    # time = 0
+    # while time < translation_time:
+    #     pub.publish(twist_translation)
+    #     rate.sleep()
+    #     time += rate.sleep_dur.nsecs/1E9
 
     pub.publish(Twist())
     return "Success"
@@ -41,11 +55,22 @@ def move_rotate():
     rotation_time = math.fabs(ALPHA/OMEGA)
     pub.publish(twist_rotation)
     rospy.sleep(rotation_time)
+    # rate = rospy.Rate(50)
+    # time = 0
+    # while time < rotation_time:
+    #     pub.publish(twist_rotation)
+    #     rate.sleep()
+    #     time += rate.sleep_dur.nsecs/1E9
 
     twist_rotation.angular.z = -1*OMEGA
     rotation_time = math.fabs(ALPHA/OMEGA)
     pub.publish(twist_rotation)
     rospy.sleep(rotation_time)
+    # time = 0
+    # while time < rotation_time:
+    #     pub.publish(twist_rotation)
+    #     rate.sleep()
+    #     time += rate.sleep_dur.nsecs/1E9
 
     pub.publish(Twist())
     return "Success"

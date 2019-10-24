@@ -50,11 +50,12 @@ def get_position(data):
     i += 1
 
 
-def set_robots_angular_velocity(twist_rotation, new_pos):
+def set_robots_angular_velocity(new_pos):
     """
     Function calculates, whether robot should rotate clockwise or counterclockwise, sets it's angular velocity 
     and starts the rotation
     """
+    global twist_rotation
     alpha = new_pos[2] - current_pos[2]
     alpha = normalize_angle(alpha)
 
@@ -91,7 +92,8 @@ def is_translation_reached(new_pos):
     Function checks, whether distance between robot's current position and desirable position has started increasing 
     and returns True, if that has happened
     """
-    return i > 0 and get_distance(new_pos, prev_pos) < (1-RTOL)*get_distance(new_pos, current_pos) - ATOL 
+    current_distance = get_distance(new_pos, current_pos)
+    return i > 0 and get_distance(new_pos, prev_pos) < (1-RTOL)*current_distance - ATOL and current_distance < 0.5
 
 
 def stop_robot():
@@ -121,6 +123,7 @@ def move_elektron(data):
     path = data.path.poses
 
     # create variables for setting robot's velocity
+    global twist_rotation
     twist_rotation = Twist()
     twist_translation = Twist()
     twist_translation.linear.x = VELOCITY
@@ -138,9 +141,10 @@ def move_elektron(data):
 
         # rotate robot
         i = 0
-        set_robots_angular_velocity(twist_rotation, new_pos)
+        set_robots_angular_velocity(new_pos)
         while not is_rotation_reached(new_pos):
             rospy.wait_for_message('elektron/mobile_base_controller/odom', Odometry)
+            # pub.publish(twist_rotation)
         stop_robot()
 
         # translate robot
@@ -148,6 +152,7 @@ def move_elektron(data):
         pub.publish(twist_translation)
         while not is_translation_reached(new_pos):
             rospy.wait_for_message('elektron/mobile_base_controller/odom', Odometry)
+            # pub.publish(twist_translation)
         stop_robot()
 
     # clean after moving robot
