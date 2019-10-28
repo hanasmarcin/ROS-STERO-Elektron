@@ -8,7 +8,10 @@ find_package(catkin REQUIRED COMPONENTS
   nav_msgs
   message_generation
   tf2_ros
+  tf
   costmap_2d
+  global_planner
+  nav_core
 )
 
 

@@ -1,0 +1,18 @@
+<launch>
+ <node pkg="tf" type="static_transform_publisher" name="map" args="0 0 0 0 0 0 map odom 10"/> 
+
+  <!-- Run the map server --> 
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find stero_mobile_init)/config/map.yaml"/>
+
+  <!--- Run AMCL --> 
+  <!-- <include file="$(find amcl)/examples/amcl_omni.launch" /> -->
+
+  <node pkg="stero_mobile_init" type="proj2_server" respawn="false" name="proj2_server" output="screen">
+    <rosparam file="$(find stero_mobile_init)/config/costmap_common_params.yaml" command="load" ns="global_costmap" /> 
+    <rosparam file="$(find stero_mobile_init)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find stero_mobile_init)/config/local_costmap_params.yaml" command="load" />
+    <rosparam file="$(find stero_mobile_init)/config/global_costmap_params.yaml" command="load" /> 
+    <rosparam file="$(find stero_mobile_init)/config/base_local_planner_params.yaml" command="load" />
+  </node>
+
+</launch>
