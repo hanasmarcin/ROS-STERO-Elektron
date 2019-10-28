@@ -9,8 +9,8 @@ import math
 import numpy as np
 
 
-OMEGA = 0.3
-VELOCITY = 0.3
+OMEGA = 0.2
+VELOCITY = 0.2
 ATOL = 1e-07
 RTOL = 1e-07
 
