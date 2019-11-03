@@ -1,0 +1,15 @@
+<launch>
+
+  <include file="$(find stero_mobile_init)/launch/elektron_world_5.launch" />
+	
+	<node name="static_tf0" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 /map /odom 10"/>
+	<node name="map_server" pkg="map_server" type="map_server" args="$(find stero_mobile_init)/config/map.yaml" />
+
+	<rosparam file="$(find stero_mobile_init)/parameters_global.yaml" command="load" ns="costmap/global_costmap" />
+	<rosparam file="$(find stero_mobile_init)/parameters_local.yaml" command="load" ns="costmap/local_costmap" />
+
+	<node name="costmap" pkg="stero_mobile_init" type="proj2_server" />
+
+  <node name="rviz" pkg="rviz" type="rviz"/>
+	
+</launch>

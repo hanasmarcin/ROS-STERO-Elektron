@@ -1,5 +1,6 @@
 <launch>
- <node pkg="tf" type="static_transform_publisher" name="map" args="0 0 0 0 0 0 map odom 10"/> 
+  <include file="$(find stero_mobile_init)/launch/elektron_world_5.launch" />
+  <node pkg="tf" type="static_transform_publisher" name="map" args="0 0 0 0 0 0 map odom 10"/> 
 
   <!-- Run the map server --> 
   <node name="map_server" pkg="map_server" type="map_server" args="$(find stero_mobile_init)/config/map.yaml"/>
@@ -14,5 +15,7 @@
     <rosparam file="$(find stero_mobile_init)/config/global_costmap_params.yaml" command="load" /> 
     <rosparam file="$(find stero_mobile_init)/config/base_local_planner_params.yaml" command="load" />
   </node>
+  
+  <node name="rviz" pkg="rviz" type="rviz"/>
 
 </launch>

@@ -1,11 +1,36 @@
-local_costmap:
-  global_frame: odom
-  robot_base_frame: base_link
-  update_frequency: 5.0
-  publish_frequency: 2.0
-  static_map: false
-  rolling_window: true
-  width: 6.0
-  height: 6.0
-  resolution: 0.05
-  
+local_costmap: # parametry lokalnej mapy kosztow
+  global_frame: odom # uklad wspolrzednych, wzgledem ktorego dodawane jest polozenie mapy kosztow
+  robot_base_frame: base_link # uklad wspolrzednych bazy robota
+  update_frequency: 5.0 # czestotliwosc odswiezania mapy
+  publish_frequency: 2.0 # czestotliwosc publikowania mapy na topic
+  static_map: false # mapa nie jest statyczna, pochodzi z odczytow
+  rolling_window: true # czy poczatek ukladu wsp. mapy jest srodkiem robota (tak)
+  width: 6.0 # szerokosc mapy-okna
+  height: 6.0 # wysokosc mapy-okna
+  resolution: 0.05 # rozdzielczosc mapy (w metrach/piksel)
+  plugins: 
+    # - {name: static_map,       type: "costmap_2d::StaticLayer"}
+    - {name: obstacle_map,        type: "costmap_2d::VoxelLayer"}
+    - {name: inflation_map,        type: "costmap_2d::InflationLayer"}
+  obstacle_map:
+    observation_sources: laser_scan_sensor # zrodlo odczytow danych obserwacyjnych do tworzenia warstwy przeszkod
+    laser_scan_sensor: {
+      observation_persistence: 0.1,
+      sensor_frame: base_laser_link, 
+      data_type: LaserScan, 
+      topic: /laser_scan, 
+      # expected_update_rate: 0.1,
+      track_unknown_space: true,
+      marking: true, 
+      clearing: true, 
+      min_obstacle_height: -5, 
+      max_obstacle_height: 5,
+      obstacle_range: 2.5, # max odleglosc odczytu lasera
+      raytrace_range: 3.0 # max odleglosc uznana za pusta miedzy laserem a odczytem
+
+      } # definicja czujnika
+    track_unknown_space: true
+  inflation_map:
+    cost_scaling_factor: 2
+    inflation_radius: 2
+

@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf
   costmap_2d
   global_planner
+  dwa_local_planner
   nav_core
 )
 

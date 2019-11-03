@@ -1,5 +1,15 @@
-global_costmap:
-  global_frame: map
-  robot_base_frame: base_link
-  update_frequency: 10
-  static_map: true
+global_costmap: # parametry mapy globalnej
+  global_frame: map # uklad wspolrzednych mapy
+  robot_base_frame: base_link # uklad wspolrzednych bazy robota
+  update_frequency: 10 # czestotliwosc odswiezania (niewwykorzystywana)
+  publish_frequency: 2.0 # czestotliwosc publikowania mapy na topic
+  static_map: true # mapa nie jest statyczna, pochodzi z odczytow
+  rolling_window: false # czy poczatek ukladu wsp. mapy jest srodkiem robota (tak)
+  plugins: 
+    - {name: static_map,       type: "costmap_2d::StaticLayer"}
+    - {name: inflation_map,        type: "costmap_2d::InflationLayer"}
+  inflation_map:
+    cost_scaling_factor: 2
+    inflation_radius: 2
+
+
