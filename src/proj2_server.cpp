@@ -29,11 +29,12 @@ using geometry_msgs::Twist;
 using costmap_2d::Costmap2DROS;
 using global_planner::GlobalPlanner;
 using dwa_local_planner::DWAPlannerROS;
+using std::unique_ptr;
 
 
-void setStart(PoseStamped &start, tf2_ros::Buffer &tfBuffer)
+void setStart(PoseStamped &start, tf2_ros::Buffer *tfBuffer)
 {
-    TransformStamped currentTf = tfBuffer.lookupTransform("base_link", "map", ros::Time::now(), ros::Duration(0.1));
+    TransformStamped currentTf = tfBuffer->lookupTransform("base_link", "map", ros::Time::now(), ros::Duration(0.1));
     start.header.frame_id = "map";
     start.pose.position.x = currentTf.transform.translation.x;
     start.pose.position.y = currentTf.transform.translation.y;
@@ -64,25 +65,41 @@ void recovery(Twist &twist, Twist &prevTwist, ros::Publisher &pub, ros::Rate &un
         twist.angular.z = 0.2;
 }
 
-bool isGoalReached(DWAPlannerROS &localPlanner, Twist &prevTwist, int &unsuccessfulCount)
+bool isGoalReached(DWAPlannerROS *localPlanner, Twist &prevTwist, int &unsuccessfulCount)
 {
-    return localPlanner.isGoalReached() || (unsuccessfulCount == 0 && prevTwist.linear.x == 0 && prevTwist.angular.z == 0);
+    return localPlanner->isGoalReached() || (unsuccessfulCount == 0 && prevTwist.linear.x == 0 && prevTwist.angular.z == 0);
+}
+
+tf2_ros::Buffer *tfBuffer;
+tf2_ros::TransformListener *tfListener;
+// Configure and initialize global costmap
+Costmap2DROS *globalCostmap;
+// Configure and initialize global planner
+GlobalPlanner *globalPlanner;
+// Configure and initialize DWA local plannertf2_ros::TransformListener
+DWAPlannerROS *localPlanner;
+// Configure and initialize local costmap
+Costmap2DROS *localCostmap;
+
+void initPlannersAndCostmaps(){
+    tfBuffer = new tf2_ros::Buffer();
+    tfListener = new tf2_ros::TransformListener(*tfBuffer);
+    globalCostmap = new Costmap2DROS("global_costmap", *tfBuffer);
+    globalPlanner = new GlobalPlanner();
+    localPlanner = new DWAPlannerROS();
+    localCostmap = new Costmap2DROS("local_costmap", *tfBuffer);
+    // Configure transform buffer
+    tfBuffer->setUsingDedicatedThread(true);
+
+    globalPlanner->initialize("base_global_planner", globalCostmap->getCostmap(), "map");
+
+    localPlanner->initialize("base_local_planner", tfBuffer, localCostmap);
 }
 
 bool getToPose(stero_mobile_init::Proj2::Request  &req,
                stero_mobile_init::Proj2::Response &res)
 {
-    // Configure transform buffer
-    tf2_ros::Buffer tfBuffer;
-    tf2_ros::TransformListener tfListener(tfBuffer);
-    tfBuffer.setUsingDedicatedThread(true);
 
-    // Configure and initialize global costmap
-    Costmap2DROS globalCostmap("global_costmap", tfBuffer);
-
-    // Configure and initialize global planner
-    GlobalPlanner globalPlanner;
-    globalPlanner.initialize("base_global_planner", &globalCostmap);
 
     PoseStamped start;
     setStart(start, tfBuffer);
@@ -91,16 +108,11 @@ bool getToPose(stero_mobile_init::Proj2::Request  &req,
 
     // Make global plan
     std::vector<PoseStamped> plan;
-    globalPlanner.makePlan(start, goal, plan);
+    globalPlanner->makePlan(start, goal, plan);
 
-    // Configure and initialize local costmap
-    costmap_2d::Costmap2DROS localCostmap("local_costmap", tfBuffer);
 
-    // Configure and initialize DWA local planner
-    DWAPlannerROS localPlanner;
-    localPlanner.initialize("base_local_planner", &tfBuffer, &localCostmap);
-    localCostmap.start();
-    localPlanner.setPlan(plan);
+    localCostmap->start();
+    localPlanner->setPlan(plan);
 
     // Create publisher to publish robot's velocities
     ros::NodeHandle nh;
@@ -115,12 +127,12 @@ bool getToPose(stero_mobile_init::Proj2::Request  &req,
 
     while(!isGoalReached(localPlanner, prevTwist, unsuccessfulCount))
     {
-        
+        globalPlanner->publishPlan(plan);
         ros::spinOnce(); // For laser_scan to be received by local costmap's obstacles layer
-        tfBuffer.canTransform("odom", "map", ros::Time::now(), ros::Duration(0.01)); // Check if the transform is available, to avoid
+        tfBuffer->canTransform("odom", "map", ros::Time::now(), ros::Duration(0.01)); // Check if the transform is available, to avoid
                                                                                      // errors about transforms being set in the future
 
-        bool isSuccessful = localPlanner.computeVelocityCommands(twist); // Use DWA local planner
+        bool isSuccessful = localPlanner->computeVelocityCommands(twist); // Use DWA local planner
                                                                          // Sets twist to calculated values or default values 
                                                                          // if twist wasn't able to be calculated
         
@@ -162,6 +174,7 @@ bool getToPose(stero_mobile_init::Proj2::Request  &req,
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "proj2_server");
+    initPlannersAndCostmaps();
     ros::NodeHandle nh;
 
     ros::ServiceServer service = nh.advertiseService("proj2", getToPose);

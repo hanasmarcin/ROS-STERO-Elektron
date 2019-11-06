@@ -31,6 +31,6 @@ local_costmap: # parametry lokalnej mapy kosztow
       } # definicja czujnika
     track_unknown_space: true
   inflation_map:
-    cost_scaling_factor: 2
-    inflation_radius: 2
+    cost_scaling_factor: 3
+    inflation_radius: 0.1
 

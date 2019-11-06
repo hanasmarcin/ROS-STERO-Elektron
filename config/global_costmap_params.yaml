@@ -9,7 +9,7 @@ global_costmap: # parametry mapy globalnej
     - {name: static_map,       type: "costmap_2d::StaticLayer"}
     - {name: inflation_map,        type: "costmap_2d::InflationLayer"}
   inflation_map:
-    cost_scaling_factor: 2
-    inflation_radius: 2
+    cost_scaling_factor: 3
+    inflation_radius: 0.1
 
 
