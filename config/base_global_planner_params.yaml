@@ -1,0 +1,5 @@
+base_global_planner:
+  lethal_cost: 160
+  neutral_cost: 25
+  cost_factor: 2
+  

@@ -14,6 +14,7 @@
     <rosparam file="$(find stero_mobile_init)/config/local_costmap_params.yaml" command="load" />
     <rosparam file="$(find stero_mobile_init)/config/global_costmap_params.yaml" command="load" /> 
     <rosparam file="$(find stero_mobile_init)/config/base_local_planner_params.yaml" command="load" />
+    <rosparam file="$(find stero_mobile_init)/config/base_global_planner_params.yaml" command="load" />
   </node>
   
   <node name="rviz" pkg="rviz" type="rviz"/>

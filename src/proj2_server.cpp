@@ -34,7 +34,7 @@ using std::unique_ptr;
 
 void setStart(PoseStamped &start, tf2_ros::Buffer *tfBuffer)
 {
-    TransformStamped currentTf = tfBuffer->lookupTransform("base_link", "map", ros::Time::now(), ros::Duration(0.1));
+    TransformStamped currentTf = tfBuffer->lookupTransform("map", "base_link", ros::Time::now(), ros::Duration(0.1));
     start.header.frame_id = "map";
     start.pose.position.x = currentTf.transform.translation.x;
     start.pose.position.y = currentTf.transform.translation.y;
