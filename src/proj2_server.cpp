@@ -48,8 +48,9 @@ void setGoal(PoseStamped &goal, Pose &goalPose)
     goal.pose = goalPose;
 }
 
-void recovery(Twist &twist, Twist &prevTwist, ros::Publisher &pub, ros::Rate &unsuccessfulRate)
+void recovery(Twist &twist, Twist &prevTwist, ros::Publisher &pub, ros::Rate &unsuccessfulRate, Costmap2DROS* costmap )
 {
+    costmap->resetLayers();
     // Move backwards for 1.25s
     twist.linear.x = -0.1;
     pub.publish(twist);
@@ -145,7 +146,7 @@ bool getToPose(stero_mobile_init::Proj2::Request  &req,
         
         if (unsuccessfulCount >= 10) // If planner wasn't able to calculate velocities more than 10 times in row
         {
-            recovery(twist, prevTwist, pub, unsuccessfulRate);
+            recovery(twist, prevTwist, pub, unsuccessfulRate, localCostmap);
             prevTwist = twist;
         }
 
