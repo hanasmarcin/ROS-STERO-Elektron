@@ -9,4 +9,4 @@ Project made in the Robot Control and Simulation classes, using ROS, Python and 
 
 Launch files were created and every component was then visualised in RVIZ as well as in GAZEBO.
 
-Further description (in polish) in project's report in the pdf format.
+Further description (in polish) in project's [report](Hanas_Szczepanik_SprawozdanieBlokMobilny.pdf) in the pdf format.
